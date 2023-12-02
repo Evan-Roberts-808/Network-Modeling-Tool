@@ -2,19 +2,19 @@ import csv
 import networkx as nx
 
 def model_traffic_flow(network, traffic):
-    # create a directed graph using networkx to represent the network
     graph = create_network_graph(network)
-
-    # initialize a data structure to store traffic load on each link
     traffic_load = {}
 
-    # iterate over traffic demands
     for source, destinations in traffic.items():
         for destination, demand in destinations.items():
-            # find the shortest path using Dijkstra's algorithm
-            shortest_path = nx.shortest_path(graph, source=source, target=destination, weight='weight')
+            try:
+                shortest_path = nx.shortest_path(graph, source=source, target=destination, weight='weight')
+            except nx.NetworkXNoPath:
+                # handle the case where there's no path between source and destination
+                # consider it as an unroutable demand
+                update_traffic_load(traffic_load, [], demand)
+                continue
 
-            # update traffic load on each link along the path
             update_traffic_load(traffic_load, shortest_path, demand)
 
     return traffic_load
