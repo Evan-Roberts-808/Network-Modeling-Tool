@@ -1,4 +1,5 @@
 import pandas as pd
+from src.network_alorithms import dijkstra, shortest_path
 
 def load_network_from_csv(file_path):
     # read csv into pandas dataframe
