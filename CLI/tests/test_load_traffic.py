@@ -1,5 +1,5 @@
 import pytest
-from src.load import load_network_traffic_from_csv
+from CLI.src.resources.load import load_network_traffic_from_csv
 
 def test_load_traffic_from_csv():
     file_path = "CLI/data/example_traffic.csv"

@@ -1,6 +1,6 @@
 import pytest
 from src.network_alorithms import dijkstra, shortest_path
-from src.load import load_network_from_csv
+from CLI.src.resources.load import load_network_from_csv
 
 def test_shortest_path():
     network = load_network_from_csv("CLI/data/example_network.csv")

@@ -1,5 +1,5 @@
 import pytest
-from src.load import load_network_from_csv
+from CLI.src.resources.load import load_network_from_csv
 
 # Test for step 1
 def test_load_network_from_csv():
