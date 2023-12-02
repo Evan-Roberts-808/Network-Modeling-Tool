@@ -1,0 +1,8 @@
+start_node,end_node,total_demand
+A,H,6
+H,G,10
+G,F,7
+F,E,3
+B,A,3
+I,G,2
+F,D,4

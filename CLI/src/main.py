@@ -1,33 +1,15 @@
-import pandas as pd
-from src.network_alorithms import dijkstra, shortest_path
+from load import load_network_from_csv, load_network_traffic_from_csv
+from report import model_traffic_flow, generate_report
 
-def load_network_from_csv(file_path):
-    # read csv into pandas dataframe
-    df = pd.read_csv(file_path)
+def main(network, traffic):
+    network = load_network_from_csv(network)
 
-    # convert dataframe into dictionary
-    network = {}
-    for _, row in df.iterrows():
-        start_node = row['Start']
-        end_node = row['End']
-        capacity = row['Capacity']
-        weight = row['Weight']
+    traffic = load_network_traffic_from_csv(traffic)
 
-        # create entries for start and end nodes if they don't exist
-        network.setdefault(start_node, []).append({'end_node': end_node, 'capacity': capacity, 'weight': weight})
-        network.setdefault(end_node, []).append({'end_node': start_node, 'capacity': capacity, 'weight': weight})
+    traffic_load = model_traffic_flow(network, traffic)
 
-    return network
+    generate_report(traffic_load, 'report.csv')
 
-def load_network_traffic_from_csv(file_path):
-    df = pd.read_csv(file_path)
-
-    traffic = {}
-    for _, row in df.iterrows():
-        source_node = row['Source']
-        destination_node = row['Destination']
-        demand = row['Demand']
-
-        traffic.setdefault(source_node, {})[destination_node] = demand
-        
-    return traffic
+if __name__ == "__main__":
+    # input paths to network and traffic csvs
+    main('CLI/data/example_network.csv', 'CLI/data/example_traffic.csv')
