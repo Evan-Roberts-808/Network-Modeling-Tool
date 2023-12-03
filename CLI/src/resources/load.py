@@ -16,6 +16,9 @@ def load_network_from_csv(file_path):
         network.setdefault(start_node, []).append({'end_node': end_node, 'capacity': capacity, 'weight': weight})
         network.setdefault(end_node, []).append({'end_node': start_node, 'capacity': capacity, 'weight': weight})
 
+    print('Loaded network:')
+    print(network)
+
     return network
 
 def load_network_traffic_from_csv(file_path):
@@ -30,3 +33,6 @@ def load_network_traffic_from_csv(file_path):
         traffic.setdefault(source_node, {})[destination_node] = demand
         
     return traffic
+
+if __name__ == '__main__':
+    load_network_from_csv('CLI/data/example_network.csv')
