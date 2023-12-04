@@ -13,14 +13,14 @@ def dijkstra(network, start_node):
     while priority_queue:
         current_distance, current_node = heapq.heappop(priority_queue)
 
-        print(f"Exploring node: {current_node}, Distance: {current_distance}")
+        # print(f"Exploring node: {current_node}, Distance: {current_distance}")
 
         # Explore neighbors
         for link in network[current_node]:
             neighbor = link['end_node']
             weight = link['weight']
 
-            print(f"Checking neighbor: {neighbor}, Weight: {weight}")
+            # print(f"Checking neighbor: {neighbor}, Weight: {weight}")
 
             distance_to_neighbor = current_distance + weight
 
