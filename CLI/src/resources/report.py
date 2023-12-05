@@ -1,5 +1,6 @@
 import csv
 import networkx as nx
+from network_algorithms import shortest_path
 
 def model_traffic_flow(network, traffic):
     graph = create_network_graph(network)
@@ -19,19 +20,35 @@ def model_traffic_flow(network, traffic):
 
     return traffic_load
 
-def generate_report(traffic_load, output_csv):
+def generate_report(network, traffic_load, output_csv):
     report = []
 
     for link, demand in traffic_load.items():
         start_node, end_node = link
+
+        # Ensure that start_node and end_node are strings (keys in the network dictionary)
+        start_node = str(start_node)
+        end_node = str(end_node)
+
+        # Find the dictionary corresponding to the end_node in the list for start_node
+        start_node_edges = network[start_node]
+        end_node_dict = next(edge for edge in start_node_edges if edge['end_node'] == end_node)
+
+        # Retrieve the weight/capacity of the edge
+        capacity = end_node_dict['capacity']
+
+        # Calculate the utilization percentage
+        utilization_percentage = (demand / capacity) * 100
+
         report.append({
             'start_node': start_node,
             'end_node': end_node,
-            'total_demand': demand
+            'total_demand': demand,
+            'utilization_percentage': utilization_percentage
         })
 
     with open(output_csv, mode='w', newline='') as file:
-        fieldnames = ['start_node', 'end_node', 'total_demand']
+        fieldnames = ['start_node', 'end_node', 'total_demand', 'utilization_percentage']
         writer = csv.DictWriter(file, fieldnames=fieldnames)
 
         writer.writeheader()

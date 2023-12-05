@@ -72,7 +72,8 @@ class NetworkApp:
             for link in links:
                 end_node = link['end_node']
                 weight = link['weight']
-                G.add_edge(node, end_node, weight=weight)
+                capacity = link['capacity']
+                G.add_edge(node, end_node, weight=weight, capacity=capacity)
 
         # Calculate the initial spring layout
         pos = nx.spring_layout(G)
@@ -152,10 +153,10 @@ class NetworkApp:
         # Color the link based on utilization
         for link in path_edges:
             start_node, end_node = link
-
             # Calculate the utilization percentage
-            capacity = self.G[start_node][end_node]['weight']
+            capacity = self.G[start_node][end_node]['capacity']
             utilization = (demand / capacity) * 100
+            print(utilization)
 
             # Color the link based on utilization
             if utilization > 100:
