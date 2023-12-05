@@ -8,7 +8,7 @@ def export_report_csv(network, traffic):
 
     traffic_load = model_traffic_flow(network, traffic)
 
-    generate_report(traffic_load, 'report.csv')
+    generate_report(network, traffic_load, 'report.csv')
 
 if __name__ == "__main__":
     # input paths to network and traffic csvs
