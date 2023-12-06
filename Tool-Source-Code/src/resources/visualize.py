@@ -34,24 +34,41 @@ class NetworkApp:
         self.control_frame.grid(row=0, column=1, sticky="nsew")
 
         # Create buttons and input fields
-        ttk.Label(self.control_frame, text="Start Node:").grid(row=0, column=0)
+        ttk.Label(self.control_frame, text="Start Node:").grid(row=3, column=0)
         self.start_entry = ttk.Entry(self.control_frame)
-        self.start_entry.grid(row=0, column=1)
+        self.start_entry.grid(row=3, column=1)
 
-        ttk.Label(self.control_frame, text="End Node:").grid(row=1, column=0)
+        ttk.Label(self.control_frame, text="End Node:").grid(row=4, column=0)
         self.end_entry = ttk.Entry(self.control_frame)
-        self.end_entry.grid(row=1, column=1)
+        self.end_entry.grid(row=4, column=1)
 
-        ttk.Button(self.control_frame, text="Shortest Path", command=self.show_shortest_path).grid(row=2, column=0, columnspan=2, pady=10)
-        ttk.Button(self.control_frame, text="Visualize Traffic", command=self.visualize_traffic).grid(row=3, column=0, columnspan=2, pady=10)
-        ttk.Button(self.control_frame, text="Import Network", command=self.import_network).grid(row=4, column=0, pady=10)
-        ttk.Button(self.control_frame, text="Import Traffic", command=self.import_traffic).grid(row=4, column=1, pady=10)
-        ttk.Button(self.control_frame, text="Generate Report", command=self.generate_report).grid(row=5, column=0, columnspan=2, pady=10)
+        ttk.Button(self.control_frame, text="Import Network", command=self.import_network).grid(row=1, column=0, columnspan=2, pady=10)
+        ttk.Button(self.control_frame, text="Import Traffic", command=self.import_traffic).grid(row=2, column=0, columnspan=2, pady=10)
+        ttk.Button(self.control_frame, text="Shortest Path", command=self.show_shortest_path).grid(row=5, column=0, columnspan=2, pady=10)
+        ttk.Button(self.control_frame, text="Visualize Traffic", command=self.visualize_traffic).grid(row=6, column=0, columnspan=2, pady=10)
+        ttk.Button(self.control_frame, text="Generate Report", command=self.generate_report).grid(row=7, column=0, columnspan=2, pady=10)
 
         # Adjust column and row weights for resizing
-        self.root.columnconfigure(0, weight=1)
-        self.root.columnconfigure(1, weight=1)
+        self.root.columnconfigure(0, weight=3)
+        self.root.columnconfigure(1, weight=3)
         self.root.rowconfigure(0, weight=1)
+
+        # Create a Canvas for the key
+        self.key_canvas = tk.Canvas(self.control_frame, width=240, height=120)
+        self.key_canvas.grid(row=8, column=0, columnspan=2, pady=10)
+
+        # Add rectangles and labels to represent colors and meanings
+        self.key_canvas.create_rectangle(10, 10, 30, 30, fill='darkviolet')
+        self.key_canvas.create_text(50, 20, anchor=tk.W, text='Shortest Path')
+
+        self.key_canvas.create_rectangle(10, 40, 30, 60, fill='green')
+        self.key_canvas.create_text(50, 50, anchor=tk.W, text='Utilization < 80%')
+
+        self.key_canvas.create_rectangle(10, 70, 30, 90, fill='yellow')
+        self.key_canvas.create_text(50, 80, anchor=tk.W, text='Utilization > 80%')
+
+        self.key_canvas.create_rectangle(10, 100, 30, 120, fill='red')
+        self.key_canvas.create_text(50, 110, anchor=tk.W, text='Utilization > 100%')
 
         # Visualize the network on startup
         self.visualize_network()
@@ -141,9 +158,9 @@ class NetworkApp:
         nx.draw_networkx_edges(self.G, pos=self.pos, edgelist=non_path_edges, edge_color='k', width=2, ax=self.ax)
 
         # Draw shortest path edges and nodes
-        nx.draw_networkx_nodes(self.G, pos=self.pos, nodelist=path, node_color='g', ax=self.ax)
+        nx.draw_networkx_nodes(self.G, pos=self.pos, nodelist=path, node_color='darkviolet', ax=self.ax)
         nx.draw_networkx_labels(self.G, pos=self.pos, labels={node: node for node in self.G.nodes}, font_color='w', font_size=10, font_weight='bold', ax=self.ax)
-        nx.draw_networkx_edges(self.G, pos=self.pos, edgelist=path_edges, edge_color='g', width=2, ax=self.ax)
+        nx.draw_networkx_edges(self.G, pos=self.pos, edgelist=path_edges, edge_color='darkviolet', width=2, ax=self.ax)
 
         # Redraw the canvas
         self.ax.figure.canvas.draw()
@@ -201,7 +218,7 @@ class NetworkApp:
 
                 # Color the link based on utilization
                 if utilization > 100:
-                    edge_color = 'm'  # magenta for over 100% utilization
+                    edge_color = 'r'  # magenta for over 100% utilization
                 elif utilization > 80:
                     edge_color = 'y'  # yellow for over 80% utilization
                 else:
