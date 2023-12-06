@@ -1,8 +1,0 @@
-start_node,end_node,total_demand,utilization_percentage
-A,H,6,60.0
-H,G,10,100.0
-G,F,7,70.0
-F,E,3,30.0
-B,A,3,30.0
-I,G,2,20.0
-F,D,4,40.0
