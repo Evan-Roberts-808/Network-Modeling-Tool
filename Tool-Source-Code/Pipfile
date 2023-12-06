@@ -8,6 +8,7 @@ pytest = "*"
 pandas = "*"
 networkx = "*"
 matplotlib = "*"
+pillow = "*"
 
 [dev-packages]
 
