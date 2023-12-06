@@ -1,5 +1,5 @@
 import heapq
-from load import load_network_from_csv
+from resources.load import load_network_from_csv
 
 def dijkstra(network, start_node):
     # Initialize distances and predecessors

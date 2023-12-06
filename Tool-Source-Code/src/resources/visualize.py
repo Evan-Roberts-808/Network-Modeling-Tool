@@ -4,9 +4,9 @@ from tkinter import filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import networkx as nx
-from load import load_network_from_csv, load_network_traffic_from_csv
-from network_algorithms import shortest_path
-from generate_report import export_report_csv
+from resources.load import load_network_from_csv, load_network_traffic_from_csv
+from resources.network_algorithms import shortest_path
+from resources.generate_report import export_report_csv
 
 class NetworkApp:
     def __init__(self, root):
