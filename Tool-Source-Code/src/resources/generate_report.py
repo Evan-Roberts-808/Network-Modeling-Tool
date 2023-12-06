@@ -1,5 +1,5 @@
-from load import load_network_from_csv, load_network_traffic_from_csv
-from report import model_traffic_flow, generate_report
+from resources.load import load_network_from_csv, load_network_traffic_from_csv
+from resources.report import model_traffic_flow, generate_report
 
 def export_report_csv(network, traffic, output_csv):
     network = load_network_from_csv(network)

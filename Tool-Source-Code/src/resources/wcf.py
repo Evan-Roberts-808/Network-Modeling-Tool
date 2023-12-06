@@ -1,5 +1,5 @@
-from load import load_network_from_csv, load_network_traffic_from_csv
-from report import model_traffic_flow
+from resources.load import load_network_from_csv, load_network_traffic_from_csv
+from resources.report import model_traffic_flow
 
 def determine_worst_case_failure(network, traffic):
     worst_case = None

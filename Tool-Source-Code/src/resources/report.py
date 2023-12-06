@@ -1,6 +1,6 @@
 import csv
 import networkx as nx
-from network_algorithms import shortest_path
+from resources.network_algorithms import shortest_path
 
 def model_traffic_flow(network, traffic):
     graph = create_network_graph(network)
