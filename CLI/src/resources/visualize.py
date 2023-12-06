@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
@@ -6,6 +7,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from load import load_network_from_csv, load_network_traffic_from_csv
 from network_algorithms import shortest_path
+from generate_report import export_report_csv
 
 class NetworkApp:
     def __init__(self, root):
@@ -45,6 +47,7 @@ class NetworkApp:
         ttk.Button(self.control_frame, text="Visualize Traffic", command=self.visualize_traffic).grid(row=3, column=0, columnspan=2, pady=10)
         ttk.Button(self.control_frame, text="Import Network", command=self.import_network).grid(row=4, column=0, pady=10)
         ttk.Button(self.control_frame, text="Import Traffic", command=self.import_traffic).grid(row=4, column=1, pady=10)
+        ttk.Button(self.control_frame, text="Generate Report", command=self.generate_report).grid(row=5, column=0, columnspan=2, pady=10)
 
         # Adjust column and row weights for resizing
         self.root.columnconfigure(0, weight=1)
@@ -153,7 +156,7 @@ class NetworkApp:
     def visualize_traffic(self):
         if not self.traffic:
             self.import_traffic()
-            
+
         if self.G is not None and self.pos is not None and hasattr(self, 'traffic'):
             # Get all edges in the graph
             all_edges = list(self.G.edges)
@@ -206,6 +209,21 @@ class NetworkApp:
                     edge_color = 'g'  # green for normal utilization
 
                 nx.draw_networkx_edges(self.G, pos=self.pos, edgelist=[(start_node, end_node)], edge_color=edge_color, width=2, ax=self.ax)
+
+    def generate_report(self):
+        if not self.network:
+            self.import_network()
+
+        if not self.traffic:
+            self.import_traffic()
+
+        # Open the "Save As" dialog
+        file_path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv")])
+
+        if file_path:
+
+            # Pass network, traffic, and the file name to export_report_csv
+            export_report_csv(self.network_path, self.traffic_path, file_path)
 
 if __name__ == "__main__":
     root = tk.Tk()
