@@ -12,12 +12,13 @@ class NetworkApp:
         self.root = root
         self.root.title("Network Modeling Tool")
 
-        # Load network data
-        self.network = load_network_from_csv('CLI/data/example_network.csv')
-        self.traffic = load_network_traffic_from_csv('CLI/data/example_traffic.csv')
         # Initialize instance variables
-        self.G, self.pos = self.create_network_graph()
+        self.G, self.pos = None, None
         self.ax = None  # Initialize self.ax
+        self.network = None
+        self.traffic = None
+        self.network_path = None
+        self.traffic_path = None
 
         # Initialize UI components
         self.create_widgets()
@@ -41,7 +42,9 @@ class NetworkApp:
         self.end_entry.grid(row=1, column=1)
 
         ttk.Button(self.control_frame, text="Shortest Path", command=self.show_shortest_path).grid(row=2, column=0, columnspan=2, pady=10)
-        ttk.Button(self.control_frame, text="Visualize Traffic", command=self.show_traffic).grid(row=3, column=0, columnspan=2, pady=10)
+        ttk.Button(self.control_frame, text="Visualize Traffic", command=self.visualize_traffic).grid(row=3, column=0, columnspan=2, pady=10)
+        ttk.Button(self.control_frame, text="Import Network", command=self.import_network).grid(row=4, column=0, pady=10)
+        ttk.Button(self.control_frame, text="Import Traffic", command=self.import_traffic).grid(row=4, column=1, pady=10)
 
         # Adjust column and row weights for resizing
         self.root.columnconfigure(0, weight=1)
@@ -52,35 +55,66 @@ class NetworkApp:
         self.visualize_network()
 
     def visualize_network(self):
-        # Set the figsize to control the size of the window
-        fig, self.ax = plt.subplots(figsize=(20, 18))  # Use self.ax as an instance variable
+        if self.G is not None and self.pos is not None:
+            # Set the figsize to control the size of the window
+            fig, self.ax = plt.subplots(figsize=(20, 18))  # Use self.ax as an instance variable
 
-        nx.draw(self.G, self.pos, with_labels=True, font_weight='bold', node_color='b', font_color='white')
+            nx.draw(self.G, self.pos, with_labels=True, font_weight='bold', node_color='b', font_color='white')
 
-        # Embed the Matplotlib plot into the Tkinter window
-        canvas = FigureCanvasTkAgg(fig, master=self.network_frame)
-        canvas.draw()
-        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+            # Embed the Matplotlib plot into the Tkinter window
+            canvas = FigureCanvasTkAgg(fig, master=self.network_frame)
+            canvas.draw()
+            canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
     def create_network_graph(self):
-        G = nx.DiGraph()
+        try:
+            G = nx.DiGraph()
 
-        for node, links in self.network.items():
-            G.add_node(node)
+            for node, links in self.network.items():
+                G.add_node(node)
 
-        for node, links in self.network.items():
-            for link in links:
-                end_node = link['end_node']
-                weight = link['weight']
-                capacity = link['capacity']
-                G.add_edge(node, end_node, weight=weight, capacity=capacity)
+            for node, links in self.network.items():
+                for link in links:
+                    end_node = link['end_node']
+                    weight = link['weight']
+                    capacity = link['capacity']
+                    G.add_edge(node, end_node, weight=weight, capacity=capacity)
 
-        # Calculate the initial spring layout
-        pos = nx.spring_layout(G)
+            # Calculate the initial spring layout
+            pos = nx.spring_layout(G)
 
-        return G, pos
+            return G, pos
+        except Exception as e:
+            print(f'Could not create graph, self.G is None. Error: {e}')
+            return None, None
+
+    def import_network(self):
+        file_path = filedialog.askopenfilename(title="Select Network CSV", filetypes=[("CSV files", "*.csv")])
+        if file_path:
+            self.network_path = file_path
+            self.update_network()
+
+    def import_traffic(self):
+        file_path = filedialog.askopenfilename(title="Select Traffic CSV", filetypes=[("CSV files", "*.csv")])
+        if file_path:
+            self.traffic_path = file_path
+            self.update_traffic()
+
+    def update_network(self):
+        if self.network_path:
+            self.network = load_network_from_csv(self.network_path)
+            self.G, self.pos = self.create_network_graph()
+            self.visualize_network()
+
+    def update_traffic(self):
+        if self.traffic_path:
+            self.traffic = load_network_traffic_from_csv(self.traffic_path)
+            self.visualize_traffic()
 
     def show_shortest_path(self):
+        if not self.network:
+            self.import_network()
+
         start_node = self.start_entry.get()
         end_node = self.end_entry.get()
 
@@ -116,61 +150,64 @@ class NetworkApp:
         # Close the additional figure window
         plt.close('all')
 
-    def show_traffic(self):
-        # Get all edges in the graph
-        all_edges = list(self.G.edges)
+    def visualize_traffic(self):
+        if not self.traffic:
+            self.import_traffic()
+            
+        if self.G is not None and self.pos is not None and hasattr(self, 'traffic'):
+            # Get all edges in the graph
+            all_edges = list(self.G.edges)
 
-        # Draw all non-path edges and nodes
-        nx.draw_networkx_nodes(self.G, pos=self.pos, node_color='b', ax=self.ax)
-        nx.draw_networkx_edges(self.G, pos=self.pos, edgelist=all_edges, edge_color='k', width=2, ax=self.ax)
+            # Draw all non-path edges and nodes
+            nx.draw_networkx_nodes(self.G, pos=self.pos, node_color='b', ax=self.ax)
+            nx.draw_networkx_edges(self.G, pos=self.pos, edgelist=all_edges, edge_color='k', width=2, ax=self.ax)
 
-        # Draw node labels
-        nx.draw_networkx_labels(self.G, pos=self.pos, labels=nx.get_node_attributes(self.G, 'label'), font_color='k', font_size=8, font_weight='bold', ax=self.ax)
+            # Draw node labels
+            nx.draw_networkx_labels(self.G, pos=self.pos, labels=nx.get_node_attributes(self.G, 'label'), font_color='k', font_size=8, font_weight='bold', ax=self.ax)
 
-        for source, destinations in self.traffic.items():
-            for destination, demand in destinations.items():
-                try:
-                    # Find the shortest path for each traffic demand
-                    path = shortest_path(self.network, source, destination)
+            for source, destinations in self.traffic.items():
+                for destination, demand in destinations.items():
+                    try:
+                        # Find the shortest path for each traffic demand
+                        path = shortest_path(self.network, source, destination)
 
-                    # Get path edges
-                    path_edges = [(path[i], path[i + 1]) for i in range(len(path) - 1)]
+                        # Get path edges
+                        path_edges = [(path[i], path[i + 1]) for i in range(len(path) - 1)]
 
-                    # Visualize traffic on each link
-                    self.visualize_traffic(path, path_edges, demand)
+                        # Visualize traffic on each link
+                        self.visualize_traffic_on_link(path_edges, demand)
 
-                except nx.NetworkXNoPath:
-                    # Handle the case where there's no path between source and destination
-                    print(f"No path between {source} and {destination}")
+                    except nx.NetworkXNoPath:
+                        # Handle the case where there's no path between source and destination
+                        print(f"No path between {source} and {destination}")
 
-        # Redraw the canvas
-        self.ax.figure.canvas.draw()
+            # Redraw the canvas
+            self.ax.figure.canvas.draw()
 
-        # Close the additional figure window
-        plt.close('all')
-    
-    def visualize_traffic(self, path, path_edges, demand):
-        # Color the link based on utilization
-        for link in path_edges:
-            start_node, end_node = link
-            # Calculate the utilization percentage
-            capacity = self.G[start_node][end_node]['capacity']
-            utilization = (demand / capacity) * 100
-            print(utilization)
+            # Close the additional figure window
+            plt.close('all')
 
+    def visualize_traffic_on_link(self, path_edges, demand):
+        if self.G is not None and self.pos is not None:
             # Color the link based on utilization
-            if utilization > 100:
-                edge_color = 'm'  # magenta for over 100% utilization
-            elif utilization > 80:
-                edge_color = 'y'  # yellow for over 80% utilization
-            else:
-                edge_color = 'g'  # green for normal utilization
+            for link in path_edges:
+                start_node, end_node = link
+                # Calculate the utilization percentage
+                capacity = self.G[start_node][end_node]['capacity']
+                utilization = (demand / capacity) * 100
+                print(utilization)
 
-            nx.draw_networkx_edges(self.G, pos=self.pos, edgelist=[(start_node, end_node)], edge_color=edge_color, width=2, ax=self.ax)
+                # Color the link based on utilization
+                if utilization > 100:
+                    edge_color = 'm'  # magenta for over 100% utilization
+                elif utilization > 80:
+                    edge_color = 'y'  # yellow for over 80% utilization
+                else:
+                    edge_color = 'g'  # green for normal utilization
+
+                nx.draw_networkx_edges(self.G, pos=self.pos, edgelist=[(start_node, end_node)], edge_color=edge_color, width=2, ax=self.ax)
 
 if __name__ == "__main__":
-    network = load_network_from_csv('CLI/data/example_network.csv')
-    traffic = load_network_traffic_from_csv('CLI/data/example_traffic.csv')
     root = tk.Tk()
     app = NetworkApp(root)
     root.mainloop()
